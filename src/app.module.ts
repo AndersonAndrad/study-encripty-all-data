@@ -1,10 +1,9 @@
-import { UserEntity } from './app/user/user.entity';
 import 'dotenv/config';
+import { UserEntity } from './app/user/user.entity';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserController } from './app/user/user.controller';
 import { UserModule } from './app/user/user.module';
 
 @Module({
@@ -19,7 +18,7 @@ import { UserModule } from './app/user/user.module';
     }),
     UserModule,
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
