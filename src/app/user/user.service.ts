@@ -3,8 +3,9 @@ import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import crypt from 'bcryptjs';
-
+import * as hash from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import token from '../config/auth.config';
 @Injectable()
 export class UserService {
   constructor(
@@ -21,8 +22,12 @@ export class UserService {
   }
 
   async createUser(data: Iuser) {
-    const t = await crypt.hash('o', 2);
-    return t;
+    const encryptedData = jwt.sign('anderson', token.pass);
+    const decryptedData = jwt.verify(encryptedData, token.pass);
+    return {
+      encryptedData,
+      decryptedData,
+    };
     // return await this.UserRepository.save(this.UserRepository.create(data));
   }
 

@@ -20,8 +20,8 @@ export class UserController {
   }
 
   @Get(':id')
-  findOnlyUser(@Param() id: string) {
-    return this.UserService.findOnlyUser(id);
+  async findOnlyUser(@Param() id: string) {
+    return await this.UserService.findOnlyUser(id);
   }
 
   @Post()
