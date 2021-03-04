@@ -3,7 +3,6 @@ import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as hash from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import token from '../config/auth.config';
 @Injectable()
@@ -14,21 +13,45 @@ export class UserService {
   ) {}
 
   async findAllUsers() {
-    return await this.UserRepository.find();
+    const users = await this.UserRepository.find();
+
+    const allUsers = [];
+
+    users.map((user) => {
+      allUsers.push({
+        id: user.id,
+        name: jwt.verify(user.name, token.pass),
+        email: jwt.verify(user.email, token.pass),
+      });
+    });
+
+    return allUsers;
   }
 
   async findOnlyUser(id: string) {
-    return await this.UserRepository.findOne(id);
+    return await this.UserRepository.find({ where: { _id: id } });
   }
 
   async createUser(data: Iuser) {
-    const encryptedData = jwt.sign('anderson', token.pass);
-    const decryptedData = jwt.verify(encryptedData, token.pass);
-    return {
-      encryptedData,
-      decryptedData,
-    };
-    // return await this.UserRepository.save(this.UserRepository.create(data));
+    const { name, email, password } = data;
+
+    const existingUser = await this.UserRepository.find({
+      where: { email: jwt.sign(email, token.pass) },
+    });
+
+    if (!((await existingUser.length) === 0)) {
+      return {
+        error: 'This user already exists in our database',
+      };
+    }
+
+    return await this.UserRepository.save(
+      this.UserRepository.create({
+        name: jwt.sign(name, token.pass),
+        email: jwt.sign(email, token.pass),
+        password: jwt.sign(password, token.pass),
+      }),
+    );
   }
 
   async updateUser(id: string, data: Iuser) {
