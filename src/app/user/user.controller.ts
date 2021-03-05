@@ -20,7 +20,7 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOnlyUser(@Param() id: string) {
+  async findOnlyUser(@Param('id') id: string) {
     return await this.UserService.findOnlyUser(id);
   }
 
@@ -30,12 +30,12 @@ export class UserController {
   }
 
   @Put(':id')
-  updateUser(@Param() id: string, @Body() data: Iuser) {
+  updateUser(@Param('id') id: string, @Body() data: Iuser) {
     return this.UserService.updateUser(id, data);
   }
 
   @Delete(':id')
-  deleteUser(@Param() id: string) {
+  deleteUser(@Param('id') id: string) {
     return this.UserService.deleteUser(id);
   }
 }

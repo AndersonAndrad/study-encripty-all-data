@@ -29,7 +29,17 @@ export class UserService {
   }
 
   async findOnlyUser(id: string) {
-    return await this.UserRepository.find({ where: { _id: id } });
+    const user = await this.UserRepository.findOne(id);
+
+    if (!(await user)) {
+      return { error: 'user do not exist' };
+    }
+
+    return {
+      id: user.id,
+      name: jwt.verify(user.name, token.pass),
+      email: jwt.verify(user.email, token.pass),
+    };
   }
 
   async createUser(data: Iuser) {
@@ -55,13 +65,31 @@ export class UserService {
   }
 
   async updateUser(id: string, data: Iuser) {
-    await this.UserRepository.update(id, data);
-    return await this.UserRepository.findOne(id);
+    const { name, email, password } = data;
+
+    await this.UserRepository.update(id, {
+      name: jwt.sign(name, token.pass),
+      email: jwt.sign(email, token.pass),
+      password: jwt.sign(password, token.pass),
+    });
+
+    const user = await this.UserRepository.findOne(id);
+
+    return {
+      id: user.id,
+      name: jwt.verify(user.name, token.pass),
+      email: jwt.verify(user.email, token.pass),
+    };
   }
 
   async deleteUser(id: string) {
     const user = await this.UserRepository.findOne(id);
+
+    if (!(await user)) {
+      return { error: 'user do not exist' };
+    }
+
     await this.UserRepository.delete(id);
-    return { user, deleted: true };
+    return { id: user.id, deleted: true };
   }
 }
